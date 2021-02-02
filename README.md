@@ -13,11 +13,15 @@ This is based on portions of [ThunderboltPatcher](https://github.com/osy/Thunder
 * Copyright (C) 2019 osy86. All rights reserved.
 * Copyright (C) 2021 The Asahi Linux Contributors
 
+Thanks to t8012.dev and mrarm for assistance with the VDM and Ace2 host interface commands.
+
 ## Building
 
 Install the XCode commandline tools and type `make`.
 
 ## Usage
+
+Connect the two devices via their DFU ports. That's the rear port on MacBooks and the port nearest to the power plug on Mac Minis.
 
 Run it as root (`sudo ./macvdmtool`).
 
