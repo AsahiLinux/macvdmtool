@@ -250,8 +250,8 @@ int DoReboot(HPMPluginInstance &inst, int no)
 {
     printf("Rebooting target into normal mode... ");
 
-    std::vector<uint32_t> serial{0x5ac8012, 0x105, 0x80000000};
-    DoVDM(inst, no, serial);
+    std::vector<uint32_t> reboot{0x5ac8012, 0x105, 0x80000000};
+    DoVDM(inst, no, reboot);
 
     printf("OK\n");
     return 0;
@@ -290,8 +290,8 @@ int DoDFU(HPMPluginInstance &inst, int no)
 {
     printf("Rebooting target into DFU mode... ");
 
-    std::vector<uint32_t> serial{0x5ac8012, 0x106, 0x80010000};
-    DoVDM(inst, no, serial);
+    std::vector<uint32_t> dfu{0x5ac8012, 0x106, 0x80010000};
+    DoVDM(inst, no, dfu);
 
     printf("OK\n");
     return 0;
