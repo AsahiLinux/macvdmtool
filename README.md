@@ -23,6 +23,8 @@ Install the XCode commandline tools and type `make`.
 
 Connect the two devices via their DFU ports. That's the rear port on MacBooks and the port nearest to the power plug on Mac Minis.
 
+You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
+
 Run it as root (`sudo ./macvdmtool`).
 
 ```
