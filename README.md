@@ -1,6 +1,8 @@
 # Apple Silicon to Apple Silicon VDM tool
 
-This tool lets you get a serial console on an Apple Silicon device and reboot it remotely, using only another Apple Silicon device running macOS and a standard Type C cable.
+This tool lets you send common Apple VDM messages from an Apple Sillicon Mac.  It can send messages to the T2 DFU port, the Apple M1 DFU port or any USB-C based iPad.  Currently it requires the sending device to be M1 based and the "DFU" port, but it should be possible to use any port and work from an Intel Mac (they have the same USB-C port controller) with some additonal patching.
+
+`dfu` and `reboot` are confirmed to work on iPad and T2.  Serial can probably be adapted to work with checkra1n.
 
 ## Disclaimer
 
@@ -15,17 +17,19 @@ This is based on portions of [ThunderboltPatcher](https://github.com/osy/Thunder
 
 Thanks to t8012.dev and mrarm for assistance with the VDM and Ace2 host interface commands.
 
+The documentation of the ACE and its USB-PD VPDs is here https://blog.t8012.dev/ace-part-1/
+
 ## Building
 
 Install the XCode commandline tools and type `make`.
 
 ## Usage
 
-Connect the two devices via their DFU ports. That's the rear port on MacBooks and the port nearest to the power plug on Mac Minis.
+Connect the two devices via their DFU ports. That's the furthest left port on M1 MacBooks, the closest left port on the T2, and the only port on the iPad.  See Apple's DFU recovery support articles to identify these ports on other models.
 
-You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
+You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins (USB CC1/CC2 where USB-PD are transmitted). Thunderbolt cables work too.
 
-Run it as root (`sudo ./macvdmtool`).
+Run it as root (`sudo ./macvdmtool`) as root privledge is required to open the needed IOKit IOService.
 
 ```
 Usage: ./macvdmtool <command>
