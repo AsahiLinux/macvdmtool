@@ -15,13 +15,50 @@ This is based on portions of [ThunderboltPatcher](https://github.com/osy/Thunder
 
 Thanks to t8012.dev and mrarm for assistance with the VDM and Ace2 host interface commands.
 
+## Note about macOS 12
+
+To have access to the serial console device on macOS Monterey (12), you need to disable the `AppleSerialShim` extension.
+
+**Note:** This requires downgrading the system security and may cause problems with upgrades. Use it at your own risk!
+
+Start by generating a new kernel cache, without the `AppleSerialShim` extension:
+
+```
+sudo kmutil create -n boot -a arm64e -B /Library/KernelCollections/kc.noshim.macho -V release  -k /System/Library/Kernels/kernel.release.<soc> -r /System/Library/Extensions -r /System/Library/DriverExtensions -x $(kmutil inspect -V release --no-header | awk '!/AppleSerialShim/ { print " -b "$1; }')
+```
+
+Replace `<soc>` with `t8101` on M1 Macs and `t6000` on M1 Pro/Max Macs. If you’re unsure, `uname -v` and look at the end of the version string (`RELEASE_ARM64_<soc>`).
+
+Then, enter 1TR:
+
+1. Power off your Mac
+2. Press and hold the Power button until the boot menu appears
+3. Select “Options”, then (if necessary) select your macOS volume and enter your administrative password.
+
+Select Utilities>Startup security and switch the macOS installation to reduced security. Exit Startup security.
+
+Select Utilities>Terminal and install your custom kernel:
+
+```
+kmutil configure-boot -c /Volume/<volume>/Library/KernelCollections/kc.noshim.macho -C -v /Volume/<volume>
+```
+
+Replace `<volume>` with the name of your boot volume.
+
+You can now reboot: macOS should start as normal, and the serial device `/dev/cu.debug-console` should be available.
+
+To revert back to the default kernel, enter 1TR again, access Utilities>Startup security and switch to full or reduced security.
+
 ## Building
 
 Install the XCode commandline tools and type `make`.
 
 ## Usage
 
-Connect the two devices via their DFU ports. That's the rear port on MacBooks and the port nearest to the power plug on Mac Minis.
+Connect the two devices via their DFU ports. That's:
+ - the rear port on MacBook Air and 13" MacBook Pro
+ - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
+ - the port nearest to the power plug on Mac Mini
 
 You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
