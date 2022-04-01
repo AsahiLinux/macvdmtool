@@ -59,6 +59,7 @@ Connect the two devices via their DFU ports. That's:
  - the rear port on MacBook Air and 13" MacBook Pro
  - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
  - the port nearest to the power plug on Mac Mini
+ - the port nearest to the ethernet port on the Mac Studio
 
 You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
