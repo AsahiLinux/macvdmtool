@@ -29,7 +29,15 @@ sudo kmutil create -n boot -a arm64e -B /Library/KernelCollections/kc.noshim.mac
 
 Replace `<soc>` with `t8101` on M1 Macs and `t6000` on M1 Pro/Max Macs. If you’re unsure, `uname -v` and look at the end of the version string (`RELEASE_ARM64_<soc>`).
 
-Then, enter 1TR:
+If you receive an error while generating the new kernel cache, "Operation not permitted," then you will need to disable SIP before executing the above step. SIP can be disabled by entering the 1TR with the steps described below, but instead issuing:
+
+```
+csrutil disable
+```
+
+At the 1TR terminal.
+
+Once you've generated a new kernel cache, enter 1TR:
 
 1. Power off your Mac
 2. Press and hold the Power button until the boot menu appears
@@ -59,6 +67,7 @@ Connect the two devices via their DFU ports. That's:
  - the rear port on MacBook Air and 13" MacBook Pro
  - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
  - the port nearest to the power plug on Mac Mini
+ - the port nearest to the ethernet port on the Mac Studio
 
 You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
