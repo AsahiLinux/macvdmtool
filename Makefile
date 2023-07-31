@@ -17,4 +17,4 @@ INSTALL := /usr/bin/install
 .PHONY: install
 install: macvdmtool
 	@sudo $(INSTALL) -d "$(PREFIX)/bin/"
-	@sudo $(INSTALL) -m 755 -o root -g wheel "${<}" "$(PREFIX)/bin/"
+	@sudo $(INSTALL) -m 755 -o root -g wheel "$(<)" "$(PREFIX)/bin/"
