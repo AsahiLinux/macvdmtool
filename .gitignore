@@ -1,2 +1,4 @@
 macvdmtool
 *.o
+*.so
+*.dylib
