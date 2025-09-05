@@ -66,6 +66,7 @@ Connect the two devices via their DFU ports. That's:
  - the closest (to the user) USB port on T2 based MacBooks
  - the only port on the iPad / iPhone
 
+
 You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins (USB CC1/CC2 where USB-PD are transmitted). Thunderbolt cables work too.
 
 Run it as root (`sudo ./macvdmtool`) as root privledge is required to open the needed IOKit IOService.
