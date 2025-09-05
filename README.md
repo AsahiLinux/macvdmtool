@@ -1,6 +1,8 @@
 # Apple Silicon to Apple Silicon VDM tool
 
-This tool lets you get a serial console on an Apple Silicon device and reboot it remotely, using only another Apple Silicon device running macOS and a standard Type C cable.
+This tool lets you send common Apple VDM messages from an Apple Sillicon Mac.  It can send messages to the T2 DFU port, the Apple M1 DFU port or any USB-C based iPad.  Currently it requires the sending device to be M1 based and the "DFU" port, but it should be possible to use any port and work from an Intel Mac (they have the same USB-C port controller) with some additonal patching.
+
+`dfu` and `reboot` are confirmed to work on iPad and T2.  Serial can probably be adapted to work with checkra1n.
 
 ## Disclaimer
 
@@ -14,6 +16,8 @@ This is based on portions of [ThunderboltPatcher](https://github.com/osy/Thunder
 * Copyright (C) 2021 The Asahi Linux Contributors
 
 Thanks to t8012.dev and mrarm for assistance with the VDM and Ace2 host interface commands.
+
+The documentation of the ACE and its USB-PD VPDs is here https://blog.t8012.dev/ace-part-1/
 
 ## Note about macOS 12
 
@@ -56,13 +60,16 @@ Install the XCode commandline tools and type `make`.
 ## Usage
 
 Connect the two devices via their DFU ports. That's:
- - the rear port on MacBook Air and 13" MacBook Pro
+ - the rear port on MacBook Air and 13" MacBook Pro (Apple M Series)
  - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
- - the port nearest to the power plug on Mac Mini
+ - the port nearest to the power plug on Mac Mini (Apple M Series)
+ - the closest (to the user) USB port on T2 based MacBooks
+ - the only port on the iPad / iPhone
 
-You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
-Run it as root (`sudo ./macvdmtool`).
+You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins (USB CC1/CC2 where USB-PD are transmitted). Thunderbolt cables work too.
+
+Run it as root (`sudo ./macvdmtool`) as root privledge is required to open the needed IOKit IOService.
 
 ```
 Usage: ./macvdmtool <command>
