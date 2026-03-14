@@ -246,6 +246,17 @@ int DoSerial(HPMPluginInstance &inst, int no)
     return 0;
 }
 
+int DoDebugUSB(HPMPluginInstance &inst, int no)
+{
+    printf("Switching target into debug USB mode... ");
+
+    std::vector<uint32_t> dfu{0x5ac8012, 0x1824606};
+    DoVDM(inst, no, dfu);
+
+    printf("OK\n");
+    return 0;
+}
+
 int DoReboot(HPMPluginInstance &inst, int no)
 {
     printf("Rebooting target into normal mode... ");
@@ -257,12 +268,8 @@ int DoReboot(HPMPluginInstance &inst, int no)
     return 0;
 }
 
-int DoRebootSerial(HPMPluginInstance &inst, int no)
+int WaitConnected(HPMPluginInstance &inst, int no)
 {
-
-    if (DoReboot(inst, no))
-        return 1;
-
     printf("Waiting for connection...");
     fflush(stdout);
 
@@ -283,7 +290,7 @@ int DoRebootSerial(HPMPluginInstance &inst, int no)
     printf(" Connected\n");
     sleep(1);
 
-    return DoSerial(inst, no);
+    return 0;
 }
 
 int DoDFU(HPMPluginInstance &inst, int no)
@@ -303,8 +310,10 @@ int main2(int argc, char **argv)
         printf("Usage: %s <command>\n", argv[0]);
         printf("Commands:\n");
         printf("  serial - enter serial mode on both ends\n");
+        printf("  debugusb - enter debugusb mode on the target\n");
         printf("  reboot - reboot the target\n");
         printf("  reboot serial - reboot the target and enter serial mode\n");
+        printf("  reboot debugusb - reboot the target and enter debugusb mode\n");
         printf("  dfu - put the target into DFU mode\n");
         printf("  nop - do nothing\n");
         return 1;
@@ -349,11 +358,23 @@ int main2(int argc, char **argv)
 
     if (cmd == "serial")
         return DoSerial(*inst, no);
+    else if (cmd == "debugusb")
+        return DoDebugUSB(*inst, no);
     else if (cmd == "reboot") {
-        if (arg == "serial")
-            return DoRebootSerial(*inst, no);
-        else
-            return DoReboot(*inst, no);
+        bool do_serial = arg == "serial";
+        bool do_debugusb = arg == "debugusb";
+        int reboot = DoReboot(*inst, no);
+        if (reboot)
+            return 1;
+        if (do_serial || do_debugusb) {
+            if (WaitConnected(*inst, no))
+                return 1;
+            if (do_serial)
+                return DoSerial(*inst, no);
+            else if (do_debugusb)
+                return DoDebugUSB(*inst, no);
+        }
+        return 0;
     } else if (cmd == "dfu")
         return DoDFU(*inst, no);
     else if (cmd == "nop")

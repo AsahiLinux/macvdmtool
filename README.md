@@ -30,7 +30,7 @@ Connect the two devices via their DFU ports. That's:
  - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
  - the port nearest to the power plug on Mac Mini
 
-You need to use a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
+For debugusb mode USB 2.0-only cables like Apple includes for non-Magsafe Macbooks do work. For serial mode a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
 Run it as root (`sudo ./macvdmtool`).
 
@@ -38,12 +38,15 @@ Run it as root (`sudo ./macvdmtool`).
 Usage: ./macvdmtool <command>
 Commands:
   serial - enter serial mode on both ends
+  debugusb - enter debug usb mode on the target
   reboot - reboot the target
   reboot serial - reboot the target and enter serial mode
+  reboot debugusb - reboot the target and enter debugusb mod
   dfu - put the target into DFU mode
   nop - do nothing
 ```
 
-Use `/dev/cu.debug_console` on the local machine as your serial device. To use it with m1n1, `export M1N1DEVICE=/dev/cu.debug-console`.
+For serial mode use `/dev/cu.debug_console` on the local machine as your serial device. To use it with m1n1, `export M1N1DEVICE=/dev/cu.debug-console`.<br>
+For debugusb mode use `/dev/cu.kis-100000-ch-0` on the local machine as your serial device. To use it with m1n1, `export M1N1DEVICE=/dev/cu.kis-100000-ch-0`.
 
-For typical development, the command you want to use is `macvdmtool reboot serial`. This will reboot the target, and immediately put it back into serial mode, with the right timing to make it work.
+For typical development, the command you want to use is `macvdmtool reboot serial` or `macvdmtool reboot debugusb`. This will reboot the target, and immediately put it back into serial or debugusb mode, with the right timing to make it work.
