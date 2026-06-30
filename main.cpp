@@ -4,6 +4,7 @@
 #include "AppleHPMLib.h"
 #include "ssops.h"
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -115,7 +116,7 @@ uint32_t GetUnlockKey()
     return (deviceName[0] << 24) | (deviceName[1] << 16) | (deviceName[2] << 8) | deviceName[3];
 }
 
-std::unique_ptr<HPMPluginInstance> FindDevice()
+std::unique_ptr<HPMPluginInstance> FindDevice(int target_rid)
 {
     std::unique_ptr<HPMPluginInstance> ret;
 
@@ -150,8 +151,8 @@ std::unique_ptr<HPMPluginInstance> FindDevice()
         CFNumberGetValue(data, kCFNumberSInt32Type, &rid);
         CFRelease(data);
 
-        // RID=0 seems to always be the right port
-        if (rid != 0)
+        // RID is a fixed per-port id; default 0, override with -p <rid> to drive other ports.
+        if (rid != target_rid)
             continue;
 
         printf("Found: %s\n", pathName);
@@ -306,8 +307,14 @@ int DoDFU(HPMPluginInstance &inst, int no)
 
 int main2(int argc, char **argv)
 {
-    if (argc < 2) {
-        printf("Usage: %s <command>\n", argv[0]);
+    int rid = 0, base = 1;
+    if (argc >= 3 && std::string(argv[1]) == "-p") {
+        rid = atoi(argv[2]);
+        base = 3;
+    }
+
+    if (argc < base + 1) {
+        printf("Usage: %s [-p <rid>] <command>\n", argv[0]);
         printf("Commands:\n");
         printf("  serial - enter serial mode on both ends\n");
         printf("  debugusb - enter debugusb mode on the target\n");
@@ -321,7 +328,7 @@ int main2(int argc, char **argv)
 
     uint32_t key = GetUnlockKey();
 
-    auto inst = FindDevice();
+    auto inst = FindDevice(rid);
     int no = 0;
 
     auto t = inst->readRegister(no, 0x3f);
@@ -350,11 +357,11 @@ int main2(int argc, char **argv)
             throw failure("Failed to enter DBMa mode");
     }
 
-    std::string cmd = argv[1];
+    std::string cmd = argv[base];
     std::string arg = "";
 
-    if (argc >= 3)
-        arg = argv[2];
+    if (argc >= base + 2)
+        arg = argv[base + 1];
 
     if (cmd == "serial")
         return DoSerial(*inst, no);
