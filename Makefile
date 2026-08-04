@@ -1,12 +1,16 @@
 CXXFLAGS := -std=c++14
-LDFLAGS := -framework CoreFoundation -framework IOKit -lc++
+LDFLAGS := -framework CoreFoundation -framework IOKit
 
 OBJS := main.o
 
 all: macvdmtool
 
 macvdmtool: $(OBJS)
-	cc -o $@ $(OBJS) $(LDFLAGS)
+	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS) macvdmtool
 
 ifeq ($(PREFIX),)
     PREFIX := /usr/local
