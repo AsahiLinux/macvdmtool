@@ -1,20 +1,23 @@
 CXXFLAGS := -std=c++14
-LDFLAGS := -framework CoreFoundation -framework IOKit -lc++
+LDFLAGS := -framework CoreFoundation -framework IOKit
 
 OBJS := main.o
+
+PREFIX ?= /usr/local
+DESTDIR ?=
+
+INSTALL := /usr/bin/install
 
 all: macvdmtool
 
 macvdmtool: $(OBJS)
-	cc -o $@ $(OBJS) $(LDFLAGS)
-
-ifeq ($(PREFIX),)
-    PREFIX := /usr/local
-endif
-
-INSTALL := /usr/bin/install
+	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
 
 .PHONY: install
 install: macvdmtool
-	@sudo $(INSTALL) -d "$(PREFIX)/bin/"
-	@sudo $(INSTALL) -m 755 -o root -g wheel "$(<)" "$(PREFIX)/bin/"
+	$(INSTALL) -d "$(DESTDIR)$(PREFIX)/bin"
+	$(INSTALL) -m 755 "$(<)" "$(DESTDIR)$(PREFIX)/bin"
+
+.PHONY: clean
+clean:
+	rm -f $(OBJS) macvdmtool
