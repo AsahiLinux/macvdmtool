@@ -99,7 +99,7 @@ uint32_t GetUnlockKey()
 
     io_iterator_t iter = 0;
     IOObjectDeleter iterDel(iter);
-    io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, matching);
+    io_service_t service = IOServiceGetMatchingService(MACH_PORT_NULL, matching);
     if (!service)
         throw failure("IOServiceGetMatchingService failed (IOPED)");
 
@@ -127,7 +127,7 @@ std::unique_ptr<HPMPluginInstance> FindDevice()
 
     io_iterator_t iter = 0;
     IOObjectDeleter iterDel(iter);
-    if (IOServiceGetMatchingServices(kIOMasterPortDefault, matching, &iter) != kIOReturnSuccess)
+    if (IOServiceGetMatchingServices(MACH_PORT_NULL, matching, &iter) != kIOReturnSuccess)
         throw failure("IOServiceGetMatchingServices failed");
 
     io_service_t device;
