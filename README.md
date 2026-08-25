@@ -25,10 +25,7 @@ Install the XCode commandline tools and type `make`.
 
 ## Usage
 
-Connect the two devices via their DFU ports. That's:
- - the rear port on MacBook Air and 13" MacBook Pro
- - the port next to the MagSafe connector on the 14" and 16" MacBook Pro
- - the port nearest to the power plug on Mac Mini
+Connect the two devices via their DFU ports. The DFU port differs across devices and generations, see [How to identify the DFU port on Mac](https://support.apple.com/120694).
 
 For debugusb mode USB 2.0-only cables like Apple includes for non-Magsafe Macbooks do work. For serial mode a *USB 3.0 compatible* (SuperSpeed) Type C cable. USB 2.0-only cables, including most cables meant for charging, will not work, as they do not have the required pins. Thunderbolt cables work too.
 
