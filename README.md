@@ -19,6 +19,12 @@ Thanks to t8012.dev and mrarm for assistance with the VDM and Ace2 host interfac
 
 Access to the serial console device on macOS Monterey (12) and Ventura (13) was blocked by the `AppleSerialShim` extension. Update to later macOS version or look into the history of this document to generate a kernelcache without the `AppleSerialShim` extension.
 
+## Note about newer hosts (M4/M5)
+
+On recent Apple Silicon **hosts** the local half of `serial` no longer works: the host's own USB-PD controller rejects the `DVEn` routing command (status 3), so `/dev/cu.debug_console` never carries the target's output. Target-directed commands (`reboot`, `reboot debugusb`, `dfu`) keep working, and the target side is unaffected. Observed on an M5 MacBook Air running macOS 26. On such hosts use `reboot debugusb` and `/dev/cu.kis-100000-ch-0` instead of serial mode.
+
+If every command times out on a setup that used to work, unplug and replug the cable: the controller can keep the reply from an earlier USB-PD session in its receive register, which hides fresh replies and can make a stale acknowledgement look current. When in doubt, judge a command by its effect (did the target actually reboot?), not by the printed reply.
+
 ## Building
 
 Install the XCode commandline tools and type `make`.

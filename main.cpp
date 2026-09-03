@@ -244,6 +244,10 @@ int DoSerial(HPMPluginInstance &inst, int no)
 
     if (inst.command(no, 'DVEn', args.str())) {
         printf("Failed.\n");
+        printf("Recent hosts (observed on an M5 running macOS 26) reject "
+               "local serial routing.\n"
+               "Try 'reboot debugusb' and /dev/cu.kis-100000-ch-0 "
+               "instead.\n");
         return 1;
     }
     printf("OK\n");
