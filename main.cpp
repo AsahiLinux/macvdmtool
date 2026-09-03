@@ -202,14 +202,19 @@ void DoVDM(HPMPluginInstance &inst, int no, std::vector<uint32_t> vdm)
     if (inst.command(no, 'VDMs', args.str()))
         throw failure("Failed to send VDM\n");
 
+    /* Poll with a bounded time budget instead of a fixed number of
+     * back-to-back reads.  Sixteen immediate reads race controllers that
+     * post the reply after a few hundred microseconds; on an M5 host the
+     * race is reliably lost even though the command was accepted. */
     int i;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 2000; i++) {
         rs = inst.readRegister(no, 0x4d);
         if ((uint8_t)rs[0] != rxst)
             break;
+        usleep(1000);
     }
-    if (i >= 16)
-        throw failure("Did not get a reply to VDM\n");
+    if (i >= 2000)
+        throw failure("Did not get a reply to VDM within 2 seconds\n");
 
     uint32_t vdmhdr;
     std::stringstream reply;
