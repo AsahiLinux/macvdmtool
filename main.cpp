@@ -4,6 +4,7 @@
 #include "AppleHPMLib.h"
 #include "ssops.h"
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -34,6 +35,8 @@ struct IOObjectDeleter {
 struct HPMPluginInstance {
     IOCFPlugInInterface **plugin = nullptr;
     AppleHPMLib **device;
+    // Probed ports that are not selected never entered DBMa mode.
+    bool exitDBMaOnClose = true;
 
     HPMPluginInstance(io_service_t service)
     {
@@ -51,7 +54,9 @@ struct HPMPluginInstance {
 
     ~HPMPluginInstance()
     {
-        if (plugin) {
+        if (plugin && !exitDBMaOnClose) {
+            IODestroyPlugInInterface(plugin);
+        } else if (plugin) {
             printf("Exiting DBMa mode... ");
             if (this->command(0, 'DBMa', "\x00") == 0)
                 printf("OK\n");
@@ -115,9 +120,24 @@ uint32_t GetUnlockKey()
     return (deviceName[0] << 24) | (deviceName[1] << 16) | (deviceName[2] << 8) | deviceName[3];
 }
 
+bool IsConnected(HPMPluginInstance &inst)
+{
+    try {
+        return inst.readRegister(0, 0x3f)[0] & 1;
+    } catch (failure &) {
+        return false;
+    }
+}
+
+// RID 0 is the DFU port on most Macs, but not all of them: on the M4 Mac mini
+// the DFU port is the middle rear port, RID 1. Use RID 0 when it has a
+// connection, otherwise the first port that does. MACVDMTOOL_RID picks one.
 std::unique_ptr<HPMPluginInstance> FindDevice()
 {
-    std::unique_ptr<HPMPluginInstance> ret;
+    std::unique_ptr<HPMPluginInstance> ret, fallback;
+    int forced = -1;
+    if (const char *env = getenv("MACVDMTOOL_RID"))
+        forced = atoi(env);
 
     printf("Looking for HPM devices...\n");
 
@@ -150,13 +170,28 @@ std::unique_ptr<HPMPluginInstance> FindDevice()
         CFNumberGetValue(data, kCFNumberSInt32Type, &rid);
         CFRelease(data);
 
-        // RID=0 seems to always be the right port
-        if (rid != 0)
+        if (forced >= 0 && rid != forced)
             continue;
 
-        printf("Found: %s\n", pathName);
-        ret = std::make_unique<HPMPluginInstance>(device);
+        auto inst = std::make_unique<HPMPluginInstance>(device);
+        bool connected = IsConnected(*inst);
+        printf("Found: RID=%d %s%s\n", rid, pathName, connected ? " (connected)" : "");
+
+        if (forced >= 0 || (connected && (!ret || rid == 0))) {
+            if (ret)
+                ret->exitDBMaOnClose = false;
+            ret = std::move(inst);
+        } else if (rid == 0 && !fallback) {
+            fallback = std::move(inst);
+        } else {
+            inst->exitDBMaOnClose = false;
+        }
     }
+
+    if (!ret)
+        ret = std::move(fallback);
+    else if (fallback)
+        fallback->exitDBMaOnClose = false;
 
     if (!ret)
         throw failure("No matching devices");
